@@ -1,48 +1,34 @@
-name: Build Python Wheel
+name: Build Wheel for Windows
 
 on:
   push:
-    branches:
-      - main
-      - develop
-    paths:
-      - 'py-find-1st/**' # Assuming your project is in a subdirectory called py-find-1st
-      - '.github/workflows/build-wheel.yml'
-  pull_request:
-    branches:
-      - main
-      - develop
-    paths:
-      - 'py-find-1st/**'
-      - '.github/workflows/build-wheel.yml'
-  workflow_dispatch: # Allows manual triggering of the workflow
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  build_wheel:
-    runs-on: ubuntu-latest # You can also use windows-latest or macos-latest for other platforms
+  build:
+    name: Build Wheel (Windows, Python 3.8)
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4 # Action to check out your repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5 # Action to set up a specific Python version
-      with:
-        python-version: '3.8' # Use '3.x' for the latest Python 3, or specify '3.9', '3.10', etc.
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
 
-    - name: Install build dependencies
-      run: |
-        python -m pip install --upgrade pip # Upgrade pip to the latest version
-        pip install wheel build # Install the necessary packages to build a wheel
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build wheel
 
-    - name: Build wheel
-      run: |
-        cd py-find-1st # Change to your project directory, adjust if your project is at the root
-        python -m build --wheel # Build the wheel package. This will create a .whl file in the dist/ directory
+      - name: Build wheel
+        run: python -m build --wheel
 
-    - name: Upload wheel artifact
-      uses: actions/upload-artifact@v4 # Action to upload the generated wheel file as a workflow artifact
-      with:
-        name: py-find-1st-wheel # Name of the artifact
-        path: py-find-1st/dist/*.whl # Path to the generated wheel file. Adjust if your project is at the root
-        retention-days: 5 # How long to retain the artifact (optional)
+      - name: Upload wheel as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: py-find-1st-wheel
+          path: dist/*.whl
